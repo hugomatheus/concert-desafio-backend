@@ -3,9 +3,14 @@ services:
     build: .
     container_name: 'app-concert'
     ports:
-      - 3000:3000
+      - "3838:3838"
     volumes:
       - .:/home/node/app-concert
+    depends_on:
+      - postgres-concert
+    networks:
+      - postgres-network
+
   postgres-concert:
     image: postgres
     container_name: 'postgres-concert'
@@ -19,9 +24,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
+
 volumes:
   postgres-data:
 
 networks:
-  postgres-network:  
+  postgres-network:
+    driver: bridge

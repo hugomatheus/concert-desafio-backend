@@ -39,7 +39,7 @@ export class MachinesService {
       if (filter?.status) {
         where = { status: filter.status };
       }
-      return await this.repository.find({ where });
+      return await this.repository.find({ where, order: {id: 'desc'} });
     } catch {
       throw new HttpException(
         { message: 'Não foi possível encontrar as máquinas.' },
@@ -67,7 +67,7 @@ export class MachinesService {
       let machine = Object.assign(new MachineEntity(), { id, ...dto });
       machine = await this.repository.save(machine);
       this.gateway.handleUpdateMachine(machine);
-      this.logger.log(`Máquina: ${machine.name}-${machine.id} atualizada.`);
+      this.logger.log(`Máquina: ${machine.name}-${machine.id} atualizada.`, machine);
       return { machine, message: 'Máquina atualizada com sucesso.' };
     } catch {
       throw new HttpException(
@@ -92,15 +92,18 @@ export class MachinesService {
   @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron(): Promise<void> {
     try {
-      const id = 1;
-      const testMachine = await this.repository.findOneOrFail({
-        where: { id },
+      const testMachine = await this.repository.find({
+        order: {id: 'desc'},
+        take: 1,
       });
-      const enumValues = Object.values(MachineStatusEnum);
-      const randomStatus =
-        enumValues[Math.floor(Math.random() * enumValues.length)];
-      testMachine.status = randomStatus;
-      await this.update(id, testMachine);
+      if (testMachine.length) {
+        const enumValues = Object.values(MachineStatusEnum);
+        const randomStatus =
+          enumValues[Math.floor(Math.random() * enumValues.length)];
+        testMachine[0].status = randomStatus;
+        await this.update(testMachine[0].id, testMachine[0]);
+      }
+      
     } catch {
       throw new HttpException(
         { message: 'Não foi possível realizar o procedimento.' },

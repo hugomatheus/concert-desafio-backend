@@ -9,6 +9,7 @@ import { FilterMachineDto } from './dto/filter-machine.dto';
 import { MachinesGateway } from './machines.gateway';
 import { MachineStatusEnum } from './enums/machine-status.enum';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { MachinesEventEmitterService } from './machines-event-emitter.service';
 
 @Injectable()
 export class MachinesService {
@@ -17,6 +18,7 @@ export class MachinesService {
     @InjectRepository(MachineEntity)
     private readonly repository: Repository<MachineEntity>,
     private readonly gateway: MachinesGateway,
+    private readonly event: MachinesEventEmitterService,
   ) {}
   async create(
     dto: CreateMachineDto,
@@ -68,6 +70,7 @@ export class MachinesService {
       machine = await this.repository.save(machine);
       this.gateway.handleUpdateMachine(machine);
       this.logger.log(`Máquina: ${machine.name}-${machine.id} atualizada.`, machine);
+      this.event.updatedMachine(machine);
       return { machine, message: 'Máquina atualizada com sucesso.' };
     } catch {
       throw new HttpException(
@@ -89,7 +92,7 @@ export class MachinesService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron(): Promise<void> {
     try {
       const testMachine = await this.repository.find({

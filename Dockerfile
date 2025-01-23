@@ -1,9 +1,20 @@
-FROM node:20.14.0-slim
+# Usar imagem oficial do Node.js com suporte ao npm
+FROM node:20-slim
 
-WORKDIR /home/node/app-concert
+# Definir o diretório de trabalho dentro do container
+WORKDIR /usr/src/app
 
-RUN npm install -g @nestjs/cli@11
+# Copiar arquivos de dependências
+COPY package*.json ./
 
+# Instalar dependências
+RUN npm install
+
+# Copiar o código-fonte da aplicação para dentro do container
+COPY . .
+
+# Expor a porta da aplicação
 EXPOSE 3838
 
-CMD ["tail", "-f", "/dev/null"]
+# Comando para iniciar o ambiente de desenvolvimento
+CMD ["npm", "run", "start:dev"]

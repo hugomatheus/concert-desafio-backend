@@ -92,7 +92,7 @@ export class MachinesService {
     }
   }
 
-  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron(): Promise<void> {
     try {
       const testMachine = await this.repository.find({

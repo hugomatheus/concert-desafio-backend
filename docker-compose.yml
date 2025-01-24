@@ -1,20 +1,4 @@
 services:
-  app-concert:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: 'app-concert'
-    volumes:
-      - .:/usr/src/app
-    env_file:
-      - .env
-    ports:
-      - "3838:3838"
-    depends_on:
-      - postgres-concert
-    networks:
-      - postgres-network
-
   postgres-concert:
     image: postgres
     container_name: 'postgres-concert'
@@ -29,6 +13,23 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  app-concert:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'app-concert'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    env_file:
+      - .env
+    ports:
+      - "3838:3838"
+    depends_on:
+      - postgres-concert
+    networks:
+      - postgres-network
 
 volumes:
   postgres-data:

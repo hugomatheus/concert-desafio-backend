@@ -1,42 +1,25 @@
 FROM node:22-slim AS build
-
 WORKDIR /usr/src/app
 
-# Copy files
-COPY ./src ./src
-COPY ./package.json .
-COPY ./package-lock.json .
-COPY ./tsconfig.json .
-COPY ./tsconfig.build.json .
-COPY ./nest-cli.json .
-
-# Install dependencies
+# Copy package.json and install dependencies
+COPY ./package*.json ./
 RUN npm install
+
+# Copy source code and build
+COPY ./ ./
 RUN npm run build
 
-# PROD STAGE
+# Production stage
 FROM node:22-slim AS prod
-
 WORKDIR /usr/src/app
 
-# Copy src folder
-COPY --from=build /usr/src/app/src ./src
+# Copy only the necessary files from build stage
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/tsconfig.json .
+COPY ./package*.json ./
 
-# Copy package.json and package-lock.json
-COPY --from=build /usr/src/app/package.json ./package.json
-COPY --from=build /usr/src/app/package-lock.json ./package-lock.json
+# Install only production dependencies
+RUN npm install --only=production
 
-RUN npm i dotenv
-RUN npm i typeorm
-
-# Change permissions
-RUN chown -R node:node /usr/src/app
-
-# User to execute
+# Set user and run the app
 USER node
-
-EXPOSE 3838
-
 CMD ["sh", "-c", "npm run migration:run && node dist/main"]

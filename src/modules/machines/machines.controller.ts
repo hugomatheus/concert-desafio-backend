@@ -15,7 +15,9 @@ import { UpdateMachineDto } from './dto/update-machine.dto';
 import { MachinedExistsPipe } from './validates/machine-id-exists.pipe';
 import { MachineInterface } from './interfaces/machine.interface';
 import { FilterMachineDto } from './dto/filter-machine.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('machines')
 @Controller('machines')
 export class MachinesController {
   constructor(private readonly machinesService: MachinesService) {}

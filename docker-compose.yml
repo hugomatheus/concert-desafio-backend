@@ -6,26 +6,14 @@ services:
     container_name: 'app-concert'
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
-    environment:
-      - APP_MODE=dev
-      - DATABASE_HOST=postgres-concert
-      - DATABASE_PORT=5432
-      - DATABASE_USERNAME=root
-      - DATABASE_PASSWORD=root
-      - DATABASE_NAME=concert
-      - DATABASE_TYPE=postgres
+    env_file:
+      - .env
     ports:
       - "3838:3838"
     depends_on:
       - postgres-concert
     networks:
       - postgres-network
-    command: >
-      sh -c "
-      npm run migration:run &&
-      tail -f /dev/null
-      "
 
   postgres-concert:
     image: postgres

@@ -9,7 +9,7 @@ export class MachinesSeed implements Seeder {
     await repository.insert([
       {
         name: 'Máquina de teste',
-        location: 'Localização da máquina',
+        location: '-9.664220, -35.741600',
         status: MachineStatusEnum.OFF,
       },
     ]);
